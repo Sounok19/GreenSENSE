@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | GreenSENSE{% endblock %}
+
+{% block content %}
+<div class="page-narrow">
+{% if report %}
+    <header class="result-head {% if not report.healthy %}is-issue{% endif %}">
+        <span class="result-icon"><svg class="i" aria-hidden="true"><use href="#{{ 'i-check' if report.healthy else 'i-alert' }}"/></svg></span>
+        <div class="result-meta">
+            <p class="result-crop">{{ report.crop }}</p>
+            <h1>{{ 'Looking healthy' if report.healthy else report.disease }}</h1>
+        </div>
+        <span class="pill">{{ 'No disease detected' if report.healthy else 'Disease detected' }}</span>
+    </header>
+
+    {% if report.healthy %}
+    <section class="report-card">
+        <h2><svg class="i" aria-hidden="true"><use href="#i-sprout"/></svg>Good news</h2>
+        <p>No signs of disease were found on this {{ report.crop|lower }} leaf. Keep up your current care routine and check again if anything changes.</p>
+    </section>
+    {% else %}
+        {% if report.intro %}
+        <section class="report-card">
+            <h2><svg class="i" aria-hidden="true"><use href="#i-leaf"/></svg>Overview</h2>
+            {% for paragraph in report.intro %}<p>{{ paragraph }}</p>{% endfor %}
+        </section>
+        {% endif %}
+        {% if report.cause %}
+        <section class="report-card">
+            <h2><svg class="i" aria-hidden="true"><use href="#i-book"/></svg>Cause of disease</h2>
+            {% for paragraph in report.cause %}<p>{{ paragraph }}</p>{% endfor %}
+        </section>
+        {% endif %}
+        <section class="report-card report-steps">
+            <h2><svg class="i" aria-hidden="true"><use href="#i-sprout"/></svg>How to prevent or treat it</h2>
+            {% if report.steps %}
+            <ol>{% for step in report.steps %}<li>{{ step }}</li>{% endfor %}</ol>
+            {% else %}
+            <p>Detailed guidance isn't available for this condition yet. Ask a local agronomist about treatment options.</p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <div class="result-actions">
+        <a class="btn btn-primary" href="{{ url_for('home', _anchor='detect') }}">Check another leaf</a>
+    </div>
+{% else %}
+    <section class="state-card">
+        <span class="result-icon"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></span>
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
+        <div class="result-actions">
+            {% if retry %}<a class="btn btn-primary" href="{{ url_for('home', _anchor='detect') }}">Try another photo</a>{% endif %}
+            <a class="btn {{ 'btn-ghost' if retry else 'btn-primary' }}" href="{{ url_for('home') }}">Back to home</a>
+        </div>
+    </section>
+{% endif %}
+</div>
+{% endblock %}

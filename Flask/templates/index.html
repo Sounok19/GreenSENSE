@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}GreenSENSE | Plant disease detection{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/cropper.min.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="hero" id="home">
+    <div class="container hero-grid">
+        <div class="hero-copy">
+            <h1>Find out what is wrong with a leaf before it spreads.</h1>
+            <p class="hero-lead">Upload a photo and GreenSENSE names the disease, explains what causes it and lists what to do next.</p>
+            <div class="hero-actions">
+                <a class="btn btn-light" href="#detect">Check a leaf <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                <a class="btn btn-ghost-light" href="#report">See a sample report</a>
+            </div>
+            <p class="hero-note">Covers {{ crops|length }} crops and 26 diseases, healthy leaves included.</p>
+        </div>
+
+        <figure class="plate">
+            <svg class="plate-art" viewBox="0 30 420 370" role="img" aria-label="Illustration of a leaf with three marked lesions">
+                <defs>
+                    <clipPath id="leafClip"><path d="M210 28C345 92 382 236 210 440 38 236 75 92 210 28Z"/></clipPath>
+                    <linearGradient id="leafFill" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#4d9a5f"/><stop offset="1" stop-color="#2a6b43"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(52 40) scale(.75)">
+                <path class="leaf-body" d="M210 28C345 92 382 236 210 440 38 236 75 92 210 28Z" fill="url(#leafFill)"/>
+                <g class="leaf-veins" clip-path="url(#leafClip)" fill="none" stroke="#b9e36b" stroke-opacity=".55" stroke-width="2" stroke-linecap="round">
+                    <path d="M210 40C206 180 214 320 210 438" stroke-width="3"/>
+                    <path d="M210 120Q160 100 128 70M210 120Q260 100 292 70"/>
+                    <path d="M210 185Q140 165 92 128M210 185Q280 165 328 128"/>
+                    <path d="M210 250Q130 232 80 200M210 250Q290 232 340 200"/>
+                    <path d="M210 315Q145 300 104 276M210 315Q275 300 316 276"/>
+                    <path d="M210 375Q170 362 144 346M210 375Q250 362 276 346"/>
+                </g>
+                <g class="lesion l1"><circle cx="152" cy="212" r="26" fill="#e4c24f" fill-opacity=".55"/><circle cx="152" cy="212" r="15" fill="#a9561a"/><circle cx="152" cy="212" r="6" fill="#6e330c"/></g>
+                <g class="lesion l2"><circle cx="262" cy="276" r="20" fill="#e4c24f" fill-opacity=".55"/><circle cx="262" cy="276" r="11" fill="#a9561a"/></g>
+                <g class="lesion l3"><circle cx="190" cy="336" r="14" fill="#e4c24f" fill-opacity=".55"/><circle cx="190" cy="336" r="7" fill="#a9561a"/></g>
+                <g class="marks" fill="none" stroke="#b9e36b" stroke-width="2" stroke-dasharray="5 5">
+                    <circle class="m1" cx="152" cy="212" r="38"/>
+                    <circle class="m2" cx="262" cy="276" r="31"/>
+                    <circle class="m3" cx="190" cy="336" r="25"/>
+                </g>
+                </g>
+                <g class="callouts" fill="#e9f5dc" font-size="13" font-family="inherit">
+                    <path d="M98 199H132" stroke="#b9e36b" stroke-width="1.5" fill="none"/>
+                    <text x="18" y="196">Brown spot</text>
+                    <text x="18" y="214" fill-opacity=".7">yellow halo</text>
+                    <path d="M274 247H322" stroke="#b9e36b" stroke-width="1.5" fill="none"/>
+                    <text x="402" y="244" text-anchor="end">Spreading</text>
+                    <text x="402" y="262" text-anchor="end" fill-opacity=".7">to new tissue</text>
+                </g>
+            </svg>
+            <span class="plate-scan" aria-hidden="true"></span>
+            <figcaption>Illustration: how GreenSENSE reads lesion patterns</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section" id="detect" aria-labelledby="detect-heading">
+    <div class="container">
+        <div class="section-head">
+            <h2 id="detect-heading">Check your plant</h2>
+            <p>Add a clear photo of a single leaf. You can crop it before it is analyzed.</p>
+        </div>
+
+        <form class="upload-card" id="upload-form" action="{{ url_for('predict') }}" method="POST" enctype="multipart/form-data" novalidate>
+            <label class="dropzone" id="dropzone" for="leaf-input">
+                <span class="dropzone-icon"><svg class="i" aria-hidden="true"><use href="#i-upload"/></svg></span>
+                <strong>Choose a leaf photo</strong>
+                <span>or drag and drop it here. JPG or PNG.</span>
+            </label>
+            <input class="sr-only" type="file" name="file" id="leaf-input" accept="image/*" aria-describedby="upload-tips">
+
+            <div id="stage" hidden>
+                <p class="stage-hint">Drag the corners to frame one leaf, then analyze it.</p>
+                <div class="cropper-frame"><img id="preview" alt="Selected leaf photo"></div>
+                <div class="stage-actions">
+                    <button class="btn btn-ghost" type="button" id="reset-btn">Choose another photo</button>
+                    <button class="btn btn-primary" type="submit" id="analyze-btn">
+                        <span class="spinner" aria-hidden="true"></span><span>Analyze leaf</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert" id="upload-error" role="alert" hidden></div>
+            <noscript><div class="alert">JavaScript is required to upload and crop a photo.</div></noscript>
+
+            <ul class="tips" id="upload-tips">
+                <li><svg class="i" aria-hidden="true"><use href="#i-sun"/></svg>Use bright, even light</li>
+                <li><svg class="i" aria-hidden="true"><use href="#i-leaf"/></svg>Show one whole leaf</li>
+                <li><svg class="i" aria-hidden="true"><use href="#i-crop"/></svg>Plain background works best</li>
+            </ul>
+        </form>
+
+        <div class="crops">
+            <p>Supported crops</p>
+            <ul class="chips">
+                {% for crop in crops %}<li>{{ crop }}</li>{% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section section-alt" id="how" aria-labelledby="how-heading">
+    <div class="container">
+        <div class="section-head">
+            <h2 id="how-heading">From leaf to answer in three steps</h2>
+        </div>
+        <ol class="steps">
+            <li><span class="step-num">1</span><h3>Snap a leaf</h3><p>Take a close, well-lit photo of one leaf, with any spots or damage in view.</p></li>
+            <li><span class="step-num">2</span><h3>Crop and upload</h3><p>Frame the leaf so the model sees what matters, then send it for analysis.</p></li>
+            <li><span class="step-num">3</span><h3>Read your report</h3><p>Get the likely disease, what causes it and the steps to prevent or treat it.</p></li>
+        </ol>
+    </div>
+</section>
+
+<section class="section" id="report" aria-labelledby="report-heading">
+    <div class="container report-demo">
+        <div>
+            <h2 id="report-heading">A report you can act on</h2>
+            <p>Every result opens with the diagnosis, then explains the cause and lists practical steps. Healthy leaves get a clear all-clear instead.</p>
+            <a class="btn btn-primary" href="#detect">Try it on your plant</a>
+        </div>
+        <article class="sample" aria-label="Example report layout">
+            <header>
+                <span class="sample-crop">Tomato</span>
+                <strong>Early blight</strong>
+                <span class="pill">Disease detected</span>
+            </header>
+            <section>
+                <h3>Cause</h3>
+                <p>A fungus that overwinters in soil and plant debris and splashes onto lower leaves.</p>
+            </section>
+            <section>
+                <h3>What to do</h3>
+                <ol>
+                    <li>Remove and bin the affected leaves.</li>
+                    <li>Water at the base, not over the foliage.</li>
+                    <li>Rotate crops and keep plants well spaced.</li>
+                </ol>
+            </section>
+            <footer>Example layout. Your report will match your photo.</footer>
+        </article>
+    </div>
+</section>
+
+<section class="section section-alt" id="about" aria-labelledby="about-heading">
+    <div class="container about">
+        <h2 id="about-heading">Spot problems before they spread</h2>
+        <p>Plant diseases leave patterns on leaves, but reading them takes time and expertise that most growers cannot spare. GreenSENSE uses image analysis and a deep-learning classifier to recognize those patterns and give you a head start.</p>
+        <p class="about-note"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><span>GreenSENSE is a decision aid, not a lab test. For severe or unclear cases, check with a local agronomist.</span></p>
+    </div>
+</section>
+
+<div class="overlay" id="busy" role="status" aria-live="polite" hidden>
+    <div><div class="spinner" aria-hidden="true"></div><p>Analyzing your leaf&hellip;</p></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/cropper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}

@@ -60,6 +60,7 @@ def decode_image(data):
         raise
     except (OSError, SyntaxError, ValueError, Image.DecompressionBombError) as error:
         raise ImageUploadError("Choose a readable image, such as a JPG or PNG under 24 megapixels.") from error
+
     image.thumbnail((768, 768), Image.Resampling.BILINEAR)
     return image
 
@@ -94,6 +95,8 @@ def predict_image(image):
     scores, labels = probabilities.mean(dim=0).topk(2)
     best = labels[0]
     votes = (probabilities.argmax(dim=1) == best).sum()
+    
     if scores[0] < MIN_DISEASE_SCORE or scores[0] - scores[1] < MIN_DISEASE_MARGIN or votes < 3:
         return None
+    
     return num_classes[best.item()]
