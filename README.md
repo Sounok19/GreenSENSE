@@ -12,6 +12,36 @@ pinned: false
 
 GreenSENSE is a Flask web application that uses a PyTorch ResNet-34 model to identify plant leaf diseases and healthy leaves across 38 classes and 14 crop groups. Upload a leaf photo to receive a prediction, an explanation of the condition and prevention guidance where available.
 
+## Live demo
+
+[![Hugging Face Spaces](https://img.shields.io/badge/Hugging%20Face-Live%20Demo-yellow?logo=huggingface)](https://huggingface.co/spaces/sounokghosh/GreenSENSE)
+
+**[Try GreenSENSE on Hugging Face Spaces](https://huggingface.co/spaces/sounokghosh/GreenSENSE)**
+
+## Supported crops and prediction classes
+
+The trained model supports **38 prediction classes across 14 crop groups**, including 26 disease or pest-related conditions and 12 healthy classes.
+
+| Crop | Supported prediction classes | Count |
+|---|---|---:|
+| Apple | Apple scab, Black rot, Cedar apple rust, Healthy | 4 |
+| Blueberry | Healthy | 1 |
+| Cherry (including sour) | Powdery mildew, Healthy | 2 |
+| Corn (maize) | Cercospora leaf spot / Gray leaf spot, Common rust, Northern leaf blight, Healthy | 4 |
+| Grape | Black rot, Esca (Black measles), Leaf blight (Isariopsis leaf spot), Healthy | 4 |
+| Orange | Huanglongbing (Citrus greening) | 1 |
+| Peach | Bacterial spot, Healthy | 2 |
+| Bell pepper | Bacterial spot, Healthy | 2 |
+| Potato | Early blight, Late blight, Healthy | 3 |
+| Raspberry | Healthy | 1 |
+| Soybean | Healthy | 1 |
+| Squash | Powdery mildew | 1 |
+| Strawberry | Leaf scorch, Healthy | 2 |
+| Tomato | Bacterial spot, Early blight, Late blight, Leaf mold, Septoria leaf spot, Two-spotted spider mites, Target spot, Tomato yellow leaf curl virus, Tomato mosaic virus, Healthy | 10 |
+| **Total** | | **38** |
+
+Only the listed classes are supported; a crop with a healthy-only class does not have disease-specific prediction classes in this model.
+
 ## Features
 
 - Leaf verification before classification, with rejection of unsuitable images.
@@ -74,7 +104,7 @@ docker run --rm -p 7860:7860 greensense
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub and Hugging Face Spaces instructions. The Docker Space serves the original Flask UI on port 7860. The model files are tracked with Git LFS.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub and Hugging Face Spaces instructions. The original Flask UI can be served through Docker on port 7860. The linked Hugging Face demo is intended for the separate static ONNX browser edition. The model files are tracked with Git LFS.
 
 ## Training and limitations
 
