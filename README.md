@@ -19,6 +19,30 @@ GreenSENSE is a Flask web application that uses a PyTorch ResNet-34 model to ide
 - Image cropping and upload interface, with a 10 MB upload limit.
 - CPU inference with supplied trained weights; no training required to run the app.
 
+## Supported crops and prediction classes
+
+The model predicts **38 classes across 14 crop groups**, including 26 disease or pest conditions and 12 healthy classes.
+
+| Crop | Supported prediction classes | Count |
+| --- | --- | ---: |
+| Apple | Apple scab, Black rot, Cedar apple rust, Healthy | 4 |
+| Blueberry | Healthy | 1 |
+| Cherry (including sour) | Powdery mildew, Healthy | 2 |
+| Corn (maize) | Cercospora leaf spot / Gray leaf spot, Common rust, Northern leaf blight, Healthy | 4 |
+| Grape | Black rot, Esca (Black measles), Leaf blight (Isariopsis leaf spot), Healthy | 4 |
+| Orange | Huanglongbing (Citrus greening) | 1 |
+| Peach | Bacterial spot, Healthy | 2 |
+| Bell pepper | Bacterial spot, Healthy | 2 |
+| Potato | Early blight, Late blight, Healthy | 3 |
+| Raspberry | Healthy | 1 |
+| Soybean | Healthy | 1 |
+| Squash | Powdery mildew | 1 |
+| Strawberry | Leaf scorch, Healthy | 2 |
+| Tomato | Bacterial spot, Early blight, Late blight, Leaf mold, Septoria leaf spot, Spider mites (two-spotted spider mite), Target spot, Yellow leaf curl virus, Mosaic virus, Healthy | 10 |
+| **Total** | | **38** |
+
+Healthy-only crop groups do not have dedicated disease classes in this model. Orange and squash do not have dedicated healthy classes. Unsupported conditions cannot be reliably identified.
+
 ## Project structure
 
 ```text
